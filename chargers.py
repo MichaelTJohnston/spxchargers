@@ -21,6 +21,11 @@ def check_avail():
 		16: 6
 	}
 
+	chargeStatus = {
+		'charging': 'charging',
+		'not charging': 'available'
+	}
+
 	print("Checking chargers...")
 
 	stations = requests.get(siteUrl).json()['stations']
@@ -33,7 +38,7 @@ def check_avail():
 	for station in stations:
 		stats = {
 			'charger': station['name'],
-			'chargeStatus': station['info']['chargeStatus'],
+			'chargeStatus': chargeStatus[station['info']['chargeStatus']] if station['info']['status'] == 'online' else 'unknown',
 			'status': station['info']['status'],
 			'floor': gateway2FloorDict[station['gatewayId']],
 			}
@@ -45,6 +50,7 @@ def badge_color(station):
 
 	badge_colors = {
 		'not charging': 'green',
+		'available': 'green',
 		'charging': 'red',
 		'offline': 'grey',
 	}
@@ -58,17 +64,17 @@ def badge_color(station):
 		return badge_colors['charging']
 
 st.set_page_config(
-	page_title = "EV Charger Dashboard",
+	page_title = "Blue Lot J1772 Charger Dashboard",
 	page_icon = "",
 	layout = "wide",
 	)
 
-st.write("### EV Charger Status")
-st.write(f"Last update: {pd.Timestamp.now():%Y-%m-%d %H:%M:%S}")
+st.write("#### Blue Lot J1772 Charger Dashboard")
+st.write(f"Last update: {pd.Timestamp.now():%Y-%m-%d %H:%M:%S} – Auto refreshing...")
 
 prog_cont = st.empty()
 with prog_cont:
-	st.progress(0)
+	st.progress(1)
 
 stations = check_avail()
 stationlist = st.empty()
@@ -86,7 +92,7 @@ with stationlist.container():
 
 with prog_cont:
 	for i in range(refresh):
-		st.progress(i/refresh)
+		st.progress(1-i/refresh)
 		time.sleep(1)
 		if i == refresh-1:
 			st.rerun()
