@@ -58,7 +58,7 @@ def badge_color(station):
 	if station['status'] == 'offline':
 		return badge_colors['offline']
 
-	if station['chargeStatus'] == 'not charging':
+	if station['chargeStatus'] == 'not charging' or station['chargeStatus'] == 'available':
 		return badge_colors['not charging']
 	else:
 		return badge_colors['charging']
